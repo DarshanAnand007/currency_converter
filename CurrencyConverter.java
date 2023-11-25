@@ -1,94 +1,79 @@
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
-public class CurrencyConverterUI extends JFrame {
-    private Map<String, Double> exchangeRates;
+public class CurrencyConverter {
+    private static Map<String, Double> exchangeRates;
 
-    private JTextField amountField;
-    private JComboBox<String> conversionTypeComboBox;
-    private JComboBox<String> currencyComboBox;
-    private JTextArea resultArea;
-
-    public CurrencyConverterUI() {
+    public static void main(String[] args) {
         exchangeRates = new HashMap<>();
         exchangeRates.put("EUR", 0.011);
         exchangeRates.put("GBP", 0.0094);
         exchangeRates.put("USD", 0.014);
         exchangeRates.put("AUD", 0.019);
         exchangeRates.put("CAD", 0.018);
-        exchangeRates.put("JPY", 1.52);  // Japanese Yen
-        exchangeRates.put("CNY", 0.086); // Chinese Yuan
-        exchangeRates.put("BRL", 0.0025); // Brazilian Real
-        exchangeRates.put("INR", 1.0);   // Indian Rupee
-        exchangeRates.put("ZAR", 0.22);  // South African Rand
-        exchangeRates.put("MXN", 0.072); // Mexican Peso
-        exchangeRates.put("RUB", 1.15);  // Russian Ruble
-        exchangeRates.put("CHF", 0.013); // Swiss Franc
-        exchangeRates.put("SEK", 0.11);  // Swedish Krona
 
-        setTitle("Currency Converter");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Welcome to Currency Converter");
+        System.out.println("Enter '1' to convert from INR to another currency.");
+        System.out.println("Enter '2' to convert from another currency to INR.");
+        int choice = scanner.nextInt();
 
-        addComponents();
-
-        pack();
-        setLocationRelativeTo(null);
-        setVisible(true);
-    }
-
-    private void addComponents() {
-        JPanel inputPanel = new JPanel();
-        inputPanel.add(new JLabel("Enter Amount:"));
-        amountField = new JTextField(10);
-        inputPanel.add(amountField);
-
-        inputPanel.add(new JLabel("Select Conversion Type:"));
-        conversionTypeComboBox = new JComboBox<>(new String[]{"INR to Another Currency", "Another Currency to INR"});
-        inputPanel.add(conversionTypeComboBox);
-
-        inputPanel.add(new JLabel("Select Currency:"));
-        currencyComboBox = new JComboBox<>(exchangeRates.keySet().toArray(new String[0]));
-        inputPanel.add(currencyComboBox);
-
-        JButton convertButton = new JButton("Convert");
-        convertButton.addActionListener(e -> convert());
-        inputPanel.add(convertButton);
-
-        add(inputPanel);
-
-        resultArea = new JTextArea(10, 20);
-        resultArea.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(resultArea);
-        add(scrollPane);
-    }
-
-    private void convert() {
-        String conversionType = (String) conversionTypeComboBox.getSelectedItem();
-        double amount = Double.parseDouble(amountField.getText());
-        String currency = (String) currencyComboBox.getSelectedItem();
-
-        if (exchangeRates.containsKey(currency)) {
-            double convertedAmount;
-
-            if (conversionType.equals("INR to Another Currency")) {
-                convertedAmount = amount * exchangeRates.get(currency);
-                resultArea.setText("Result: " + amount + " INR is approximately " + convertedAmount + " " + currency);
-            } else if (conversionType.equals("Another Currency to INR")) {
-                convertedAmount = amount / exchangeRates.get(currency);
-                resultArea.setText("Result: " + amount + " " + currency + " is approximately " + convertedAmount + " INR");
-            }
+        if (choice == 1) {
+            convertINRtoOtherCurrency(scanner);
+        } else if (choice == 2) {
+            convertOtherCurrencytoINR(scanner);
         } else {
-            resultArea.setText("Invalid currency selected!");
+            System.out.println("Invalid choice!");
         }
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new CurrencyConverterUI();
-        });
+    private static void convertINRtoOtherCurrency(Scanner scanner) {
+        System.out.println("Enter the amount in Indian Rupees (INR): ");
+        double amountInINR = scanner.nextDouble();
+
+        System.out.println("Enter the currency code to convert to specified currency:");
+        System.out.println("Available currency codes: EUR, GBP, USD, AUD, CAD");
+        String currencyCode = scanner.next().toUpperCase();
+
+        if (exchangeRates.containsKey(currencyCode)) {
+            double convertedAmount = amountInINR * exchangeRates.get(currencyCode);
+            System.out.println("Amount in INR: " + amountInINR + " INR");
+            displayConvertedAmount(currencyCode, convertedAmount);
+        } else {
+            System.out.println("Invalid currency code entered!");
+        }
+    }
+
+    private static void convertOtherCurrencytoINR(Scanner scanner) {
+        System.out.println("Enter the amount:");
+        double amountInCurrency = scanner.nextDouble();
+
+        System.out.println("Enter the currency code to convert the amount to Indian rupees:");
+        System.out.println("Available currency codes: EUR, GBP, USD, AUD, CAD");
+        String currencyCode = scanner.next().toUpperCase();
+
+        if (exchangeRates.containsKey(currencyCode)) {
+            double convertedAmount = amountInCurrency / exchangeRates.get(currencyCode);
+            System.out.println("Amount in " + currencyCode + ": " + amountInCurrency + " " + currencyCode);
+            displayConvertedAmount("INR", convertedAmount);
+        } else {
+            System.out.println("Invalid currency code entered!");
+        }
+    }
+
+    private static void displayConvertedAmount(String targetCurrency, double convertedAmount) {
+        if ("EUR".equals(targetCurrency)) {
+            targetCurrency = "Euros";
+        } else if ("GBP".equals(targetCurrency)) {
+            targetCurrency = "Pounds";
+        } else if ("USD".equals(targetCurrency)) {
+            targetCurrency = "US Dollars";
+        } else if ("AUD".equals(targetCurrency)) {
+            targetCurrency = "Australian Dollars";
+        } else if ("CAD".equals(targetCurrency)) {
+            targetCurrency = "Canadian Dollars";
+        }
+        System.out.println("Amount in " + targetCurrency + ": " + convertedAmount + " " + targetCurrency);
     }
 }
